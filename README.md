@@ -17,19 +17,17 @@ sem planilha, sem app novo e sem número inventado pela IA.
 
 ---
 
-```text
-Você:      Gastei 45 no almoço, no débito.
-Assistente: Registrado: R$ 45,00 em Alimentação, conta corrente.  → app.../fin/t/8K3QZ2
-
-Você:      Comprei uma TV de 2.400 em 10x no cartão.
-Assistente: 10 parcelas de R$ 240,00, a primeira na fatura de dezembro.
-
-Você:      O que eu preciso cortar para fechar o mês no verde?
-Assistente: Faltam R$ 312,40. O plano mínimo: Delivery −R$ 180,00 e Lazer −R$ 132,40.
-
-Você:      Desfaz a TV.
-Assistente: Desfeito. As 10 parcelas saíram das faturas; o histórico guarda as duas operações.
-```
+> **Você:** Gastei 45 no almoço, no débito.\
+> **Assistente:** Registrado: R$ 45,00 em Alimentação, na conta corrente.
+>
+> **Você:** Comprei uma TV de 2.400 em 10x no cartão.\
+> **Assistente:** São 10 parcelas de R$ 240,00, a primeira na fatura de dezembro.
+>
+> **Você:** O que eu preciso cortar para fechar o mês no verde?\
+> **Assistente:** Faltam R$ 312,40. O plano mínimo é cortar R$ 180,00 em Delivery e R$ 132,40 em Lazer.
+>
+> **Você:** Desfaz a TV.\
+> **Assistente:** Desfeito. As 10 parcelas saíram das faturas, e o histórico guarda as duas operações.
 
 ---
 
