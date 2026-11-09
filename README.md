@@ -83,18 +83,14 @@ Também lida com conta em moeda estrangeira (o câmbio entra como o extrato most
 
 É a pergunta em que a IA sozinha mais erra: ela responde com bom senso genérico, ou pior, com contas de cabeça. No Alicerce, **a opinião é do assistente, mas os fatos que a sustentam vêm do servidor.**
 
-```text
-Você:      Acha uma boa ideia comprar esse notebook de 6.000? À vista ou em 10x?
-
-Assistente: Simulei as duas formas nos próximos 6 meses.
-            À vista: o saldo fica abaixo da sua reserva mínima de março a maio,
-                     mesmo na estimativa otimista.
-            Em 10x:  a reserva se mantém, mas as parcelas chegam a 34% da renda
-                     em abril, acima do teto de 30% que você declarou.
-            E a meta da viagem atrasa de julho para setembro nos dois casos.
-            Se puder esperar até maio, em 10x nenhuma regra sua é quebrada.
-            Simulação guardada: s-4TQ8WD  → app.../fin/s/4TQ8WD
-```
+> **Você:** Acha uma boa ideia comprar esse notebook de 6.000? À vista ou em 10x?
+>
+> **Assistente:** Simulei as duas formas nos próximos 6 meses.
+>
+> - **À vista:** o saldo fica abaixo da sua reserva mínima de março a maio, mesmo na estimativa otimista.
+> - **Em 10x:** a reserva se mantém, mas as parcelas chegam a 34% da renda em abril, acima do teto de 30% que você declarou.
+>
+> Nos dois casos, a meta da viagem atrasa de julho para setembro. Se puder esperar até maio, em 10x nenhuma regra sua é quebrada. A simulação ficou guardada como `s-4TQ8WD`.
 
 O que o servidor entrega numa chamada de `projetar`:
 
