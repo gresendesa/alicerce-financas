@@ -73,7 +73,7 @@ A IA é ótima para entender "gastei 45 no almoço" e péssima para somar 300 la
 | "O aluguel vence todo dia 10" | Compromissos a pagar e a receber, com a agenda do que vence |
 | "O saldo do banco está 1.234,56" | Confere contra o livro-razão e aponta a diferença e os lançamentos candidatos |
 | "Quanto gastei com a família este ano?" | Âmbitos (pessoal, família, igreja, empresa…) e um link de prestação de contas |
-| "Desfaz isso." | Toda escrita é uma operação que pode ser desfeita, sem apagar nada |
+| "Desfaz isso." | Toda escrita é uma operação que pode ser desfeita, sem apagar nada ([veja abaixo](#desfazer-uma-operação-de-primeira-ordem)) |
 
 Também lida com conta em moeda estrangeira (o câmbio entra como o extrato mostra) e com comprovantes e fotos anexados aos lançamentos.
 
@@ -106,9 +106,27 @@ O que o servidor entrega numa chamada de `projetar`:
 
 ---
 
+## Desfazer: uma operação de primeira ordem
+
+> **Humanos erram devagar. IAs erram rápido.**
+
+Quem digita numa planilha erra um lançamento de cada vez e costuma perceber na hora. Um assistente que entendeu errado "registra os gastos desse extrato" lança trinta gastos na conta errada em segundos. Num sistema operado por IA, desfazer não pode ser conveniência: tem de fazer parte da fundação.
+
+Por isso, no Alicerce, desfazer não é um botão acrescentado depois. Ele decorre de como toda escrita é feita:
+
+- **Toda escrita é uma operação registrada.** Cada escrita declara os efeitos que produz, e o registrador de operações guarda cada um. Não há escrita fora dele.
+- **Desfaz uma operação ou o pedido inteiro.** As chamadas de um mesmo pedido formam um lote, e o lote se desfaz de uma vez: os trinta gastos do extrato saem juntos.
+- **Prévia exata antes de confirmar.** O primeiro passo executa a reversão inteira e a cancela no fim. Assim mostra exatamente o que vai mudar e o que impediria a reversão, sem gravar nada. O segundo passo, depois do seu "sim" (o token vale 10 minutos), aplica a reversão e confere que o resultado é igual ao da prévia.
+- **Desfazer não apaga.** Lançamentos viram estornos, estruturas voltam à versão anterior, e a trilha de auditoria guarda o erro e a correção. Desfazer um desfazer refaz.
+- **Disponível fora da conversa.** Na interface web, desfazer é uma das duas únicas ações, com escopo próprio (`fin:undo`). Você corrige o que o assistente fez sem precisar pedir a ele.
+
+---
+
 ## Interface web
 
-A conversa é a porta de entrada, mas tudo o que o Alicerce guarda também pode ser visto. Há duas formas, e as duas usam o mesmo renderizador e o mesmo catálogo de componentes.
+A conversa é a porta de entrada, mas tudo o que o Alicerce guarda também pode ser visto. Como prevê o [artigo que fundamenta a arquitetura](#referência-teórica), a tela aqui serve à supervisão: você vê, audita e desfaz, e quem opera é o assistente.
+
+Há duas formas de ver, e as duas usam o mesmo renderizador e o mesmo catálogo de componentes.
 
 ### Um link em cada resposta
 
@@ -156,7 +174,7 @@ sequenceDiagram
 
 - **Livro-razão de partidas dobradas, imutável.** Todo lançamento soma zero dentro de cada moeda, e o banco confere isso no commit. Corrigir vira estorno: nada é editado nem apagado.
 - **Dinheiro como dinheiro.** `BigDecimal` com duas casas no domínio e centavos inteiros no banco. Nunca `double`.
-- **Desfazer de verdade.** Toda escrita passa por um registrador que guarda cada efeito. Desfazer gera a operação inversa, e a trilha mostra as duas.
+- **Desfazer de verdade.** Toda escrita pode ser revertida, com prévia exata e sem apagar nada ([veja acima](#desfazer-uma-operação-de-primeira-ordem)).
 - **Idempotência.** Se o assistente repetir uma chamada (acontece!), o gasto não entra duas vezes.
 - **Recusa em vez de chute.** Faltou a conta ou o valor? A tool devolve `campos_faltando` e o assistente pergunta.
 
@@ -184,7 +202,36 @@ sequenceDiagram
 | Analisar | `situacao`, `resumo_periodo`, `ritmo_gastos`, `cortes_necessarios`, `projetar` |
 | Mostrar e compartilhar | `mostrar_vista`, `prestar_contas` |
 
-Os nomes falam da intenção (`registrar_gasto`), não da tabela (`create_transaction`). O desenho segue o artigo [From Human Interfaces to Agent Interfaces](https://arxiv.org/abs/2603.20300) (Wang et al., 2026): tools pequenas e combináveis, contratos explícitos, erros tipados e saídas compactas.
+Os nomes falam da intenção (`registrar_gasto`), não da tabela (`create_transaction`), como propõe a [referência teórica](#referência-teórica) do projeto.
+
+---
+
+## Referência teórica
+
+A arquitetura e o paradigma de interface do Alicerce seguem o artigo:
+
+> Shaolin Wang, Yi Mei, Haoyang Che, He Jiang, Shui Yu e Ying Gu.\
+> **[From Human Interfaces to Agent Interfaces: Rethinking Software Design in the Age of AI-Native Systems](https://arxiv.org/abs/2603.20300).**\
+> arXiv:2603.20300, março de 2026.
+
+O trabalho é de pesquisadores do Geely Holding Group e da Dalian University of Technology, na China, com a Victoria University of Wellington, na Nova Zelândia. A tese: o software está passando da *interação guiada pela percepção* (telas, formulários, fluxos) para a *execução guiada por invocação*. Nela, agentes de IA escolhem e combinam **capacidades invocáveis**, e a unidade básica do software deixa de ser a funcionalidade e passa a ser a capacidade.
+
+O artigo propõe cinco princípios, que aqui viram regras concretas:
+
+| Princípio do artigo | Como aparece no Alicerce |
+|---|---|
+| Interpretabilidade por máquina | Tools nomeadas pela intenção, parâmetros tipados, enums fechados e descrições curtas com exemplo |
+| Capacidades combináveis | Tools pequenas e independentes que o assistente encadeia: registrar, consultar, projetar, mostrar. Nenhuma tool genérica do tipo `executar(entidade, operacao, parametros)`. |
+| Contratos explícitos | Toda tool documenta entrada, saída, efeitos, modos de falha e escopo exigido. Dado faltando volta como `campos_faltando`. |
+| Confiabilidade de invocação | Idempotência nas escritas (repetir é seguro), erros tipados, livro-razão imutável e desfazer em dois passos |
+| Compatibilidade com o contexto | Saídas compactas. `guia` e `obter_contexto` entregam os conceitos e a estrutura de uma vez. |
+
+Mais duas ideias do artigo moldam o projeto:
+
+- **A tela vira supervisão.** As interfaces gráficas continuam importantes, mas como interface secundária, para supervisão, depuração e tratamento de exceções. É o papel da [interface web](#interface-web): ver, auditar e desfazer, não operar.
+- **Público duplo.** Sistemas reais servem humanos e IAs ao mesmo tempo. Aqui, a mesma vista validada é desenhada no navegador para você e dentro da conversa pelo assistente.
+
+Uma regra vai além do artigo e é própria do projeto: **números nunca saem do modelo**.
 
 ---
 
@@ -266,7 +313,7 @@ Por fim, adicione `https://fin.seudominio.com/mcp` como conector personalizado n
 Cinco ideias por trás de cada decisão:
 
 1. **O assistente pensa; o servidor registra, calcula e prova.** Nenhum número sai do modelo.
-2. **Nada se apaga.** Corrigir é estornar, desfazer é registrar o inverso, e o histórico conta tudo.
+2. **Todo erro tem volta, e nada se apaga.** A IA erra rápido, então desfazer é parte da fundação: corrigir é estornar, desfazer é registrar o inverso, e o histórico conta tudo.
 3. **Recusar é melhor que adivinhar.** Dado faltando volta como pergunta, não como suposição.
 4. **Tudo tem endereço.** Um link estável leva da conversa ao registro e do registro à operação que o criou.
 5. **Seus dados, seu servidor.** Escopos mínimos, token fora das tools e backup que você pode restaurar.
