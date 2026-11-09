@@ -1,0 +1,11 @@
+{
+  "name": "Alicerce",
+  "short_name": "Alicerce",
+  "lang": "pt-BR",
+  "start_url": "/fin/contas",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0b6b57",
+  "icons": [{ "src": "/web/icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

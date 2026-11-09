@@ -1,0 +1,82 @@
+spring:
+  application:
+    name: financeiro
+  threads:
+    virtual:
+      enabled: true
+  # A aplicação entra como financeiro_app, sem UPDATE/DELETE no livro-razão (V4). O Flyway entra
+  # como o dono do esquema (spring.flyway.user/password, definidos pelo ambiente).
+  datasource:
+    username: financeiro_app
+  flyway:
+    locations: classpath:db/migration,classpath:db/callback
+    placeholders:
+      senha_aplicacao: ${spring.datasource.password}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 11MB
+      # Resolvido no controlador, para o excesso virar a página de recusa.
+      resolve-lazily: true
+  ai:
+    mcp:
+      server:
+        name: alicerce-financeiro
+        version: 0.1.0
+        protocol: STATELESS
+        # Enviadas no initialize: o cliente as recebe ao conectar. O guia completo é a tool guia.
+        instructions: >-
+          Alicerce: o registro financeiro do dono, com livro-razão imutável. Você pensa; o servidor registra, calcula
+          e prova. Antes de responder sobre o Alicerce, chame guia (conceitos, ids e boas práticas) e obter_contexto
+          (contas, âmbitos e a conta conectada). Todo id com prefixo do Alicerce (t-, a-, s-, o-...) se resolve no
+          servidor com resolver_referencia, nunca pela memória da conversa. Números só do servidor: nunca some nem
+          recalcule.
+        type: SYNC
+        streamable-http:
+          mcp-endpoint: /mcp
+
+alicerce:
+  financeiro:
+    # Origem da interface web nas URLs das saídas.
+    endereco-web: https://app.alicerce.tools
+    # Logins do Keycloak com dados fictícios, separados por vírgula; obter_contexto os marca como conta de teste.
+    # Fica fora do repositório (infra/.env), e não no Keycloak.
+    contas-teste: ${CONTAS_TESTE:}
+    comprovantes:
+      # Vazio até o provisionamento (infra/comprovantes/provisionar-aws.sh).
+      bucket: ${COMPROVANTES_BUCKET:}
+      regiao: us-east-1
+      # Só nos testes: S3 compatível.
+      endpoint: ${COMPROVANTES_ENDPOINT:}
+      # De onde o recebimento direto pode baixar. Host exato do ChatGPT, visto no teste real:
+      # liberar blob.core.windows.net inteiro abriria a lista a qualquer conta da Azure.
+      hosts-download: oaiusercontent.com,oaisdmntprbrazilsouth.blob.core.windows.net
+  seguranca:
+    emissor: https://credencie.me/realms/alicerce
+    recurso: https://fin.alicerce.tools/mcp
+    clientes: [claude-ai, chatgpt, claude-code, app-web]
+    papel-dono: fin-owner
+    escopos: [fin:read, fin:write, fin:profile, fin:structure, fin:share]
+    # Pedidos de uma vez ao conectar: o ChatGPT não eleva escopos depois de um 403. fin:profile entrou com
+    # definir_compromisso, e fin:share com prestar_contas: conexões antigas precisam
+    # reconectar para recebê-los.
+    escopo-inicial: fin:read fin:write fin:structure fin:profile fin:share
+    origens-permitidas: [https://claude.ai, https://claude.com, https://chatgpt.com]
+    # Protegidas pelo token da URL, não por OAuth.
+    # E a casca da interface web, sem dado nenhum: os dados vêm de /api, que exige o token.
+    rotas-publicas: [/fin/anexo/**, /fin/comprovante/**, /fin/p/**, /, /callback, /fin/contas, /fin/lancamentos, /fin/operacoes, /fin/relatorios, /fin/t/*, /fin/a/*,
+      /fin/f/*, /fin/o/*, /fin/s/*, /fin/n/*, /fin/k/*, /fin/m/*, /fin/compromissos, /fin/agenda, /web/**, /sw.js, /manifest.webmanifest]
+
+server:
+  tomcat:
+    # Lê o excesso de um upload recusado, para o navegador receber a página e não uma conexão cortada.
+    max-swallow-size: 20MB
+  # Atrás de Cloudflare → NPM → Caddy: esquema e IP do cliente vêm de X-Forwarded-*, aceitos só de
+  # endereços privados (o Caddy). O recurso e a URL dos metadados não dependem disso: são fixos acima.
+  forward-headers-strategy: native
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

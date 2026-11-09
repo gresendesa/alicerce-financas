@@ -1,0 +1,16 @@
+# Editores e sistema
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs e caches
+*.log
+__pycache__/
+node_modules/
+
+# Segredos: os exemplos (.env.exemplo) continuam versionados
+.env
+.env.*
+!.env.exemplo

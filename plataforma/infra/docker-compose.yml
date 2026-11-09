@@ -1,0 +1,82 @@
+name: alicerce
+
+services:
+  postgres:
+    image: postgres:16.15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: financeiro
+      POSTGRES_USER: financeiro
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina em infra/.env}
+    volumes:
+      - postgres-dados:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U financeiro -d financeiro"]
+      interval: 5s
+      retries: 20
+
+  financeiro:
+    build: ..
+    image: alicerce/financeiro:local
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/financeiro
+      # A aplicação usa financeiro_app (sem UPDATE/DELETE no livro-razão); o Flyway, o dono do esquema.
+      SPRING_DATASOURCE_USERNAME: financeiro_app
+      SPRING_DATASOURCE_PASSWORD: ${FINANCEIRO_APP_PASSWORD:?defina em infra/.env}
+      SPRING_FLYWAY_USER: financeiro
+      SPRING_FLYWAY_PASSWORD: ${POSTGRES_PASSWORD}
+      # Logins de teste (dados fictícios), separados por vírgula, como CONTAS_TESTE=aceite em infra/.env.
+      CONTAS_TESTE: ${CONTAS_TESTE:-}
+    # Bucket e chave do usuário IAM dos comprovantes: criados por comprovantes/provisionar-aws.sh.
+    env_file:
+      - path: ./comprovantes/.env
+        required: true
+
+  caddy:
+    image: caddy:2.11.7-alpine
+    restart: unless-stopped
+    depends_on: [financeiro]
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+    environment:
+      # Faixa da rede do NPM, a única que pode informar IP real e esquema (X-Real-IP, X-Forwarded-*).
+      PROXIES_CONFIAVEIS: ${PROXIES_CONFIAVEIS:-172.29.0.0/16}
+    # Sem porta publicada: o NPM chega ao Caddy pela própria rede, no nome alicerce-caddy.
+    networks:
+      default:
+      npm:
+        aliases: [alicerce-caddy]
+
+  # Backup lógico horário: pg_dump → restic → S3. Detalhes em backup/ORIGEM.md.
+  backup:
+    build: ./backup
+    image: alicerce/backup:local
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    user: "1000:1000"
+    env_file:
+      - path: ./backup/.env
+        required: true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=256m
+    volumes:
+      - ./backup/secrets/restic-password:/run/secrets/restic-password:ro
+      - ./backup/secrets/postgres-password:/run/secrets/postgres-password:ro
+      - ./backup/secrets/aws-credentials:/run/secrets/aws-credentials:ro
+      - ./backup/secrets/healthcheck-url:/run/secrets/healthcheck-url:ro
+    stop_grace_period: 2m
+
+volumes:
+  postgres-dados:
+
+networks:
+  npm:
+    name: nginx-proxy-manager
+    external: true

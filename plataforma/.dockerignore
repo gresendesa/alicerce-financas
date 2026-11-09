@@ -1,0 +1,6 @@
+**/build/
+.gradle/
+.gradle-home/
+buildSrc/.gradle/
+buildSrc/.kotlin/
+*.env

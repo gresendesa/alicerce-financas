@@ -1,0 +1,377 @@
+{
+  "realm": "alicerce",
+  "enabled": true,
+  "registrationAllowed": false,
+  "bruteForceProtected": true,
+  "accessTokenLifespan": 600,
+  "ssoSessionIdleTimeout": 2592000,
+  "ssoSessionMaxLifespan": 7776000,
+  "roles": {
+    "realm": [
+      {
+        "name": "fin-owner",
+        "description": "Dono dos dados do módulo financeiro"
+      }
+    ]
+  },
+  "clientScopes": [
+    {
+      "name": "fin:read",
+      "protocol": "openid-connect",
+      "description": "Ler contas, lançamentos e cálculos",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "consent.screen.text": "Ler contas, lançamentos e cálculos"
+      },
+      "protocolMappers": [
+        {
+          "name": "audiencia-financeiro",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "https://fin.alicerce.tools/mcp",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "login-do-dono",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "username",
+            "claim.name": "preferred_username",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
+    },
+    {
+      "name": "fin:write",
+      "protocol": "openid-connect",
+      "description": "Registrar, corrigir e conferir lançamentos",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "consent.screen.text": "Registrar, corrigir e conferir lançamentos"
+      },
+      "protocolMappers": [
+        {
+          "name": "audiencia-financeiro",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "https://fin.alicerce.tools/mcp",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "fin:profile",
+      "protocol": "openid-connect",
+      "description": "Declarar intenções, metas e compromissos",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "consent.screen.text": "Declarar intenções, metas e compromissos"
+      },
+      "protocolMappers": [
+        {
+          "name": "audiencia-financeiro",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "https://fin.alicerce.tools/mcp",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "fin:structure",
+      "protocol": "openid-connect",
+      "description": "Criar e alterar contas, cartões e meios de pagamento",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "consent.screen.text": "Criar e alterar contas, cartões e meios de pagamento"
+      },
+      "protocolMappers": [
+        {
+          "name": "audiencia-financeiro",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "https://fin.alicerce.tools/mcp",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "fin:share",
+      "protocol": "openid-connect",
+      "description": "Criar e revogar links públicos de prestação de contas",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "consent.screen.text": "Criar e revogar links públicos de prestação de contas"
+      },
+      "protocolMappers": [
+        {
+          "name": "audiencia-financeiro",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "https://fin.alicerce.tools/mcp",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "fin:undo",
+      "protocol": "openid-connect",
+      "description": "Desfazer operações pela interface web",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "consent.screen.text": "Desfazer operações pela interface web"
+      },
+      "protocolMappers": [
+        {
+          "name": "audiencia-financeiro",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "https://fin.alicerce.tools/mcp",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "fin:attach",
+      "protocol": "openid-connect",
+      "description": "Enviar comprovantes e fotos pela interface web",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "consent.screen.text": "Enviar comprovantes e fotos pela interface web"
+      },
+      "protocolMappers": [
+        {
+          "name": "audiencia-financeiro",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "https://fin.alicerce.tools/mcp",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "claude-ai",
+      "name": "Claude.ai",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "consentRequired": true,
+      "redirectUris": [
+        "https://claude.ai/api/mcp/auth_callback",
+        "https://claude.com/api/mcp/auth_callback"
+      ],
+      "webOrigins": [],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "+"
+      },
+      "defaultClientScopes": [
+        "basic",
+        "roles"
+      ],
+      "optionalClientScopes": [
+        "fin:read",
+        "fin:write",
+        "fin:profile",
+        "fin:structure",
+        "fin:share",
+        "offline_access"
+      ],
+      "fullScopeAllowed": false
+    },
+    {
+      "clientId": "chatgpt",
+      "name": "ChatGPT",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "consentRequired": true,
+      "redirectUris": [
+        "https://chatgpt.com/connector_platform_oauth_redirect"
+      ],
+      "webOrigins": [],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "+"
+      },
+      "defaultClientScopes": [
+        "basic",
+        "roles"
+      ],
+      "optionalClientScopes": [
+        "fin:read",
+        "fin:write",
+        "fin:profile",
+        "fin:structure",
+        "fin:share",
+        "offline_access",
+        "email"
+      ],
+      "fullScopeAllowed": false
+    },
+    {
+      "clientId": "claude-code",
+      "name": "Claude Code",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "consentRequired": true,
+      "redirectUris": [
+        "http://localhost/*",
+        "http://127.0.0.1/*"
+      ],
+      "webOrigins": [],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "+"
+      },
+      "defaultClientScopes": [
+        "basic",
+        "roles"
+      ],
+      "optionalClientScopes": [
+        "fin:read",
+        "fin:write",
+        "fin:profile",
+        "fin:structure",
+        "fin:share",
+        "offline_access"
+      ],
+      "fullScopeAllowed": false
+    },
+    {
+      "clientId": "app-web",
+      "name": "Interface web",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "consentRequired": false,
+      "redirectUris": [
+        "https://app.alicerce.tools/callback"
+      ],
+      "webOrigins": [
+        "https://app.alicerce.tools"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "+"
+      },
+      "defaultClientScopes": [
+        "basic",
+        "roles"
+      ],
+      "optionalClientScopes": [
+        "fin:read",
+        "fin:undo",
+        "fin:attach"
+      ],
+      "fullScopeAllowed": false
+    }
+  ],
+  "requiredActions": [
+    {
+      "alias": "CONFIGURE_TOTP",
+      "name": "Configure OTP",
+      "providerId": "CONFIGURE_TOTP",
+      "enabled": true,
+      "defaultAction": true,
+      "priority": 10,
+      "config": {}
+    }
+  ],
+  "scopeMappings": [
+    {
+      "client": "claude-ai",
+      "roles": [
+        "fin-owner"
+      ]
+    },
+    {
+      "client": "chatgpt",
+      "roles": [
+        "fin-owner"
+      ]
+    },
+    {
+      "client": "claude-code",
+      "roles": [
+        "fin-owner"
+      ]
+    },
+    {
+      "client": "app-web",
+      "roles": [
+        "fin-owner"
+      ]
+    }
+  ]
+}

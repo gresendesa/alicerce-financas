@@ -1,0 +1,69 @@
+# Caddy interno do projeto. O TLS termina no Nginx Proxy Manager da VPS; aqui ficam os
+# cabeçalhos que impedem indexação, para nenhum módulo esquecer.
+# Cadeia em produção: Cloudflare → Nginx Proxy Manager → Caddy → aplicação.
+{
+	auto_https off
+	admin off
+	servers {
+		# Só o NPM (rede Docker nginx-proxy-manager) pode informar o IP real e o esquema.
+		# O NPM já troca o IP da Cloudflare pelo do cliente (CF-Connecting-IP) e o envia em X-Real-IP.
+		trusted_proxies static {$PROXIES_CONFIAVEIS:172.29.0.0/16}
+		client_ip_headers X-Real-IP X-Forwarded-For
+	}
+}
+
+(sem_indexacao) {
+	header {
+		X-Robots-Tag "noindex, nofollow, noarchive, nosnippet, noimageindex"
+		Referrer-Policy "no-referrer"
+		-Server
+		defer
+	}
+}
+
+:80 {
+	import sem_indexacao
+
+	@fin host fin.alicerce.tools
+	handle @fin {
+		reverse_proxy financeiro:8080
+	}
+
+	# Em app.alicerce.tools, as rotas de comprovante aceitam corpo grande.
+	@comprovantes {
+		host app.alicerce.tools
+		path /fin/anexo/* /fin/comprovante/*
+	}
+	handle @comprovantes {
+		# 10 MB de arquivo mais o envelope do formulário; a aplicação confere o limite exato.
+		request_body {
+			max_size 11MB
+		}
+		reverse_proxy financeiro:8080
+	}
+
+	# A interface web e a API dela. O protocolo MCP, os metadados e o actuator ficam só em fin.
+	@interno {
+		host app.alicerce.tools
+		path /mcp /mcp/* /.well-known/* /actuator /actuator/*
+	}
+	handle @interno {
+		respond 404
+	}
+
+	@interface host app.alicerce.tools
+	handle @interface {
+		reverse_proxy financeiro:8080
+	}
+
+	# Outros hosts não são servidos.
+	handle {
+		respond 404
+	}
+
+	# Respostas de erro do próprio Caddy (ex.: 502 com a aplicação fora) também levam os cabeçalhos.
+	handle_errors {
+		import sem_indexacao
+		respond "{err.status_code} {err.status_text}"
+	}
+}

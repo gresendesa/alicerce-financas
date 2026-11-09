@@ -1,0 +1,70 @@
+# Versões fixadas. Antes de mudar qualquer uma, consulte a documentação da versão nova:
+# Spring AI 2.x e o SDK Java do MCP 2.x mudaram muito em relação à 1.x.
+[versions]
+spring-boot = "4.1.2"          # gerencia Spring Security 7.1.2, Jackson 3.1.7, jOOQ 3.21.9, Flyway 12.4.0,
+                               # Testcontainers 2.0.5, PostgreSQL 42.7.14, JUnit 6.0.3
+spring-ai = "2.0.2"            # traz o SDK Java do MCP 2.1.0
+archunit = "1.5.1"
+keycloak-imagem = "26.7.3"            # imagem dos testes: a mesma versão de credencie.me
+keycloak-config-cli-imagem = "6.5.1-26.5.5"
+testcontainers-keycloak = "4.4.0"
+awssdk = "2.46.7"
+# A imagem minio/minio saiu dos registros públicos; esta é a da Chainguard, fixada por digest.
+selenium = "4.52.0"
+axe-selenium = "4.14.0"
+# Navegador real dos testes da interface; o Grid embutido fala com o selenium-java acima.
+chromium-imagem = "selenium/standalone-chromium:155.0"
+caddy-imagem = "caddy:2.11.7-alpine"              # a mesma do docker-compose.yml
+minio-imagem = "cgr.dev/chainguard/minio@sha256:3b6e40c30ecd5cea627e382ff0b82ca841f58c52294578787043ee80c8ef7c82"
+
+[libraries]
+spring-boot-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
+spring-ai-bom = { module = "org.springframework.ai:spring-ai-bom", version.ref = "spring-ai" }
+
+spring-boot-starter-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc" }
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
+spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security" }
+spring-boot-starter-oauth2-resource-server = { module = "org.springframework.boot:spring-boot-starter-oauth2-resource-server" }
+spring-boot-starter-jooq = { module = "org.springframework.boot:spring-boot-starter-jooq" }
+spring-boot-starter-flyway = { module = "org.springframework.boot:spring-boot-starter-flyway" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers" }
+flyway-postgresql = { module = "org.flywaydb:flyway-database-postgresql" }
+postgresql = { module = "org.postgresql:postgresql" }
+
+spring-ai-starter-mcp-server-webmvc = { module = "org.springframework.ai:spring-ai-starter-mcp-server-webmvc" }
+spring-ai-mcp-annotations = { module = "org.springframework.ai:spring-ai-mcp-annotations" }
+
+spring-webmvc = { module = "org.springframework:spring-webmvc" }
+spring-context = { module = "org.springframework:spring-context" }
+spring-tx = { module = "org.springframework:spring-tx" }
+spring-boot = { module = "org.springframework.boot:spring-boot" }
+jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api" }
+jackson-databind = { module = "tools.jackson.core:jackson-databind" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations" }
+spring-security-config = { module = "org.springframework.security:spring-security-config" }
+spring-security-web = { module = "org.springframework.security:spring-security-web" }
+jooq-codegen = { module = "org.jooq:jooq-codegen" }
+flyway-core = { module = "org.flywaydb:flyway-core" }
+mcp-spring-webmvc = { module = "org.springframework.ai:mcp-spring-webmvc" }
+spring-security-oauth2-resource-server = { module = "org.springframework.security:spring-security-oauth2-resource-server" }
+spring-security-oauth2-jose = { module = "org.springframework.security:spring-security-oauth2-jose" }
+
+awssdk-bom = { module = "software.amazon.awssdk:bom", version.ref = "awssdk" }
+awssdk-s3 = { module = "software.amazon.awssdk:s3" }
+awssdk-url-connection = { module = "software.amazon.awssdk:url-connection-client" }
+
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+assertj = { module = "org.assertj:assertj-core" }
+archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
+testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter" }
+testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql" }
+testcontainers-minio = { module = "org.testcontainers:testcontainers-minio" }
+selenium-java = { module = "org.seleniumhq.selenium:selenium-java", version.ref = "selenium" }
+axe-selenium = { module = "com.deque.html.axe-core:selenium", version.ref = "axe-selenium" }
+testcontainers-keycloak = { module = "com.github.dasniko:testcontainers-keycloak", version.ref = "testcontainers-keycloak" }
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }

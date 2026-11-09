@@ -1,0 +1,16 @@
+.topo { border-bottom: 1px solid var(--borda); background: var(--superficie); }
+.topo nav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; max-width: 960px; margin: 0 auto; padding: 8px 16px; }
+.topo a { min-height: 44px; display: inline-flex; align-items: center; }
+.topo button { margin-left: auto; }
+
+/* No celular, o cabeçalho fica numa linha: o menu rola na horizontal e o Sair fica à direita. */
+@media (max-width: 600px) {
+  .topo nav { flex-wrap: nowrap; gap: 4px 14px; padding: 4px 12px; overflow-x: auto; scrollbar-width: none; }
+  .topo nav::-webkit-scrollbar { display: none; }
+  .topo a { flex: none; white-space: nowrap; }
+  .topo button { flex: none; position: sticky; right: 0; min-height: 40px; padding: 4px 10px; box-shadow: -12px 0 12px var(--superficie); }
+}
+main { max-width: 960px; margin: 0 auto; padding: 16px; }
+main:focus { outline: none; }
+.pular { position: absolute; left: -9999px; }
+.pular:focus { left: 8px; top: 8px; background: var(--fundo); padding: 8px; }
