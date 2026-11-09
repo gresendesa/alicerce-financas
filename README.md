@@ -1,69 +1,166 @@
+<div align="center">
+
 # Alicerce Finanças
 
-**Controle financeiro pessoal por conversa: você fala com o Claude ou o ChatGPT, e o Alicerce guarda os fatos e faz as contas.**
+**Controle financeiro pessoal por conversa.**
 
-> "Gastei 45 no almoço, no débito."
-> "Comprei uma TV de 2.400 em 10x no cartão."
-> "O que eu preciso cortar para fechar o mês no verde?"
+Você fala com o Claude ou o ChatGPT. O Alicerce guarda os fatos e faz as contas,  
+sem planilha, sem app novo e sem número inventado pela IA.
 
-Planilha dá trabalho e app de finanças pede que você se adapte a ele. O Alicerce faz o contrário. Você conversa com o assistente de IA que já usa, manda o print do Pix ou a foto da nota fiscal, e ele registra tudo num servidor [MCP](https://modelcontextprotocol.io) com regras de contabilidade de verdade.
+[![Java](https://img.shields.io/badge/java-21-blue?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/21/)
+[![Spring Boot](https://img.shields.io/badge/spring_boot-4.1-6db33f?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![MCP](https://img.shields.io/badge/MCP-servidor-8a63d2)](https://modelcontextprotocol.io)
+[![Testes](https://img.shields.io/badge/testes-524-brightgreen)](#rodando-o-build)
+[![Licença](https://img.shields.io/badge/licença-AGPL--3.0-lightgrey.svg)](LICENSE)
 
-A regra principal do projeto é simples: **o assistente pensa; o servidor registra, calcula e prova.** Nenhum número sai da IA. Saldos, totais, projeções e cortes vêm de cálculos determinísticos sobre o banco de dados, e o assistente só interpreta o resultado.
+</div>
+
+---
+
+```text
+Você:      Gastei 45 no almoço, no débito.
+Assistente: Registrado: R$ 45,00 em Alimentação, conta corrente.  → app.../fin/t/8K3QZ2
+
+Você:      Comprei uma TV de 2.400 em 10x no cartão.
+Assistente: 10 parcelas de R$ 240,00, a primeira na fatura de dezembro.
+
+Você:      O que eu preciso cortar para fechar o mês no verde?
+Assistente: Faltam R$ 312,40. O plano mínimo: Delivery −R$ 180,00 e Lazer −R$ 132,40.
+
+Você:      Desfaz a TV.
+Assistente: Desfeito. As 10 parcelas saíram das faturas; o histórico guarda as duas operações.
+```
+
+---
+
+## O que é o Alicerce?
+
+O Alicerce é um servidor [MCP](https://modelcontextprotocol.io) que dá ao seu assistente de IA uma **memória financeira confiável**. Você registra gastos conversando, manda o print do Pix ou a foto da nota fiscal e faz perguntas sobre o seu dinheiro.
+
+A divisão de trabalho é rígida:
+
+- **O assistente pensa:** entende o que você disse, pergunta o que falta, interpreta e sugere.
+- **O servidor registra, calcula e prova:** guarda cada fato num livro-razão contábil e devolve saldos, totais, projeções e cortes calculados de forma determinística.
+
+Nenhum número sai do modelo. Quando o assistente diz que faltam R$ 312,40, esse valor veio de uma conta feita no banco de dados, e você pode abrir a tela que prova.
+
+---
+
+## Por que não uma planilha ou um app?
+
+| Abordagem | Registra conversando | Números calculados, não estimados | Histórico imutável com desfazer | Você hospeda os dados |
+|---|:---:|:---:|:---:|:---:|
+| Planilha | ✗ | parcial | ✗ | ✓ |
+| App de finanças | ✗ | ✓ | ✗ | ✗ |
+| Chat de IA sozinho | ✓ | ✗ | ✗ | ✗ |
+| **Alicerce** | ✓ | ✓ | ✓ | ✓ |
+
+A IA é ótima para entender "gastei 45 no almoço" e péssima para somar 300 lançamentos. O Alicerce deixa cada um fazer o que faz bem.
+
+---
 
 ## O que dá para fazer
 
-| Você pergunta ou envia | O Alicerce faz |
-| --- | --- |
-| "Gastei 45 no almoço, débito", um print do Pix, a foto da nota | Registra o gasto padronizado, com itens e chave da NFC-e. Se faltar algum dado, recusa e pergunta em vez de chutar. |
-| "Comprei em 10x no cartão" | Lança as parcelas nas faturas certas, conforme o dia de fechamento e de vencimento do cartão |
+| Você pede ou envia | O Alicerce faz |
+|---|---|
+| "Gastei 45 no almoço, débito", o print do Pix, a foto da nota | Registra o gasto padronizado, com itens e chave da NFC-e. Se faltar dado, pergunta em vez de chutar. |
+| "Comprei em 10x no cartão" | Lança as parcelas nas faturas certas, pelo dia de fechamento e de vencimento do cartão |
 | "Quanto gastei e quanto ganhei em setembro?" | Resumo de qualquer período, por competência ou por caixa |
 | "Estou gastando mais rápido que o normal?" | Compara o ritmo do mês com o seu típico e mostra quais categorias puxam a diferença |
-| "O que preciso deixar de gastar para fechar o mês no verde?" | Projeta o saldo do fim do mês e sugere um plano mínimo de cortes por categoria |
-| "Como fica meu saldo nos próximos meses se eu fizer essa viagem?" | Projeção mês a mês, com a linha de base e até três cenários |
-| "Quero juntar 8 mil para a viagem até julho" | Meta de valor com conta reservada: mostra quanto falta e quanto aportar por mês |
-| "Minha reserva de emergência é de 6 meses de gastos" | Regras do perfil (reserva mínima, teto de parcelas, intenção de poupança) que o servidor vigia e avisa quando estão em risco |
-| "O aluguel vence todo dia 10" | Compromissos a pagar e a receber, com agenda do que vence |
-| "Confere o saldo do Nubank: está 1.234,56" | Confere o saldo informado contra o livro-razão e aponta a diferença e os lançamentos candidatos |
-| "Quanto gastei com a família este ano?" | Âmbitos (pessoal, família, igreja, empresa…) e um link de prestação de contas que abre sem login |
-| "Desfaz isso." | Toda escrita vira uma operação que pode ser desfeita, sem apagar nada |
+| "O que preciso cortar para fechar o mês no verde?" | Projeta o fim do mês e monta o plano mínimo de cortes por categoria |
+| "E se eu fizer essa viagem em março?" | Projeção mês a mês, com a linha de base e até três cenários |
+| "Quero juntar 8 mil até julho" | Meta com conta reservada: quanto falta e quanto aportar por mês |
+| "Minha reserva é de 6 meses de gastos" | Regras do perfil (reserva mínima, teto de parcelas, poupança) que o servidor vigia e avisa quando estão em risco |
+| "O aluguel vence todo dia 10" | Compromissos a pagar e a receber, com a agenda do que vence |
+| "O saldo do banco está 1.234,56" | Confere contra o livro-razão e aponta a diferença e os lançamentos candidatos |
+| "Quanto gastei com a família este ano?" | Âmbitos (pessoal, família, igreja, empresa…) e um link de prestação de contas |
+| "Desfaz isso." | Toda escrita é uma operação que pode ser desfeita, sem apagar nada |
 
-Também funciona com conta em moeda estrangeira (o câmbio entra como o extrato mostra) e com comprovantes e fotos anexados aos lançamentos.
+Também lida com conta em moeda estrangeira (o câmbio entra como o extrato mostra) e com comprovantes e fotos anexados aos lançamentos.
 
-## Por que confiar nos números
-
-- **Livro-razão de partidas dobradas, imutável.** Todo lançamento soma zero dentro de cada moeda, e o banco garante isso no commit. Corrigir vira estorno: nada é editado nem apagado.
-- **Dinheiro como dinheiro.** `BigDecimal` com duas casas no domínio e centavos inteiros no banco. Nunca `double`.
-- **Desfazer de verdade.** Toda escrita passa por um registrador de operações que guarda cada efeito. Desfazer gera a operação inversa, e a trilha de auditoria mostra tudo, inclusive as tentativas recusadas.
-- **Idempotência.** Se o assistente repetir uma chamada (acontece!), o gasto não é registrado duas vezes.
-- **Sem alucinação de saldo.** O assistente recebe os números prontos e é instruído a nunca somar nem recalcular por conta própria.
-
-## Privacidade e segurança
-
-- **Login OAuth 2.1**, conforme a especificação do MCP, com um Keycloak próprio. O servidor publica os metadados do recurso (RFC 9728) e confere assinatura, emissor, audiência, validade, cliente, papel do dono e escopo exigido por tool.
-- **Escopos separados:** ler (`fin:read`), registrar (`fin:write`), mexer na estrutura (`fin:structure`), no perfil (`fin:profile`) e compartilhar (`fin:share`). O assistente só faz o que você autorizou.
-- **As tools nunca veem o token**, só o dono e os escopos já validados.
-- **Comprovantes num bucket privado**, com links de envio de uso único.
-- **Backup criptografado** de hora em hora (restic + S3), com restauração verificada automaticamente todo mês.
+---
 
 ## Interface web
 
-Além da conversa, há uma interface web (PWA) para consultar contas, lançamentos, faturas, agenda, relatórios e a trilha de auditoria. Ela é de leitura: as únicas ações possíveis são desfazer uma operação e pedir um link para enviar um comprovante. As mesmas telas aparecem dentro da conversa como MCP App, no Claude e no ChatGPT.
+A conversa é a porta de entrada, mas tudo o que o Alicerce guarda também pode ser visto. Há duas formas, e as duas usam o mesmo renderizador e o mesmo catálogo de componentes.
 
-As telas passam por testes automáticos de acessibilidade (WCAG AA) num navegador real.
+### Um link em cada resposta
+
+Todo registro tem um endereço estável e curto, como `fin:t-8K3QZ2`. O assistente devolve o link junto com a resposta, e ele abre a tela do lançamento, da fatura, da conta, da meta ou do comprovante. Se você colar o link de volta na conversa ("explica esse gasto"), o assistente busca o registro pelo endereço e não confia na memória da conversa.
+
+As telas cobrem contas, lançamentos, faturas, compromissos e agenda, relatórios, metas, comprovantes e a **trilha de auditoria**: cada operação, quem a fez (Claude, ChatGPT ou a própria interface) e as tentativas recusadas.
+
+### Telas dentro da conversa
+
+No Claude e no ChatGPT, as telas aparecem dentro do chat como **MCP App**. O assistente também pode montar uma tela sob medida para a sua pergunta, como um cartão com totais, uma tabela ou um gráfico, com a tool `mostrar_vista`.
+
+A regra dos números vale aqui também: o assistente escolhe os componentes, mas **não digita nenhum valor**. Cada número entra como referência a um dado que o servidor calculou, e o servidor valida a tela antes de desenhá-la.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Voce as Você
+    participant IA as Assistente
+    participant Srv as Alicerce
+    participant Tela as MCP App
+
+    Voce->>IA: "Me mostra os gastos de outubro por categoria"
+    IA->>Srv: mostrar_vista(fontes: resumo_periodo, componentes: tabela + gráfico)
+    Note over Srv: Valida o catálogo.<br/>Recusa número digitado pelo modelo.<br/>Calcula as fontes.
+    Srv-->>Tela: Vista validada, com os números do banco
+    Tela-->>Voce: Tabela e gráfico dentro da conversa
+```
+
+### Só leitura, por desenho
+
+- **Login OIDC com PKCE.** O token de leitura fica só na memória da aba, nunca em armazenamento do navegador.
+- **Duas ações, cada uma com o seu escopo.** A interface não registra nem edita nada. Ela só *desfaz* uma operação (`fin:undo`) e *pede um link de envio de comprovante* (`fin:attach`). No clique, cada ação pede um token só com o seu escopo, usa e descarta.
+- **CSP sem `unsafe-inline`:** a página não executa script embutido.
+
+### Para outras pessoas e para o celular
+
+- **Prestação de contas:** um link que abre sem login e mostra só os gastos e entradas de um âmbito num período. Serve para a família, a igreja ou o sócio. Nada mais da sua conta aparece.
+- **Envio de comprovante:** o assistente gera um link de uso único. Você abre no celular e manda a foto da nota ou o PDF do comprovante.
+- **Instalável (PWA)**, com modo escuro e layout para celular.
+- **Acessível:** cada tela passa por testes automáticos de WCAG AA num navegador real.
+
+---
+
+## Por que confiar nos números
+
+- **Livro-razão de partidas dobradas, imutável.** Todo lançamento soma zero dentro de cada moeda, e o banco confere isso no commit. Corrigir vira estorno: nada é editado nem apagado.
+- **Dinheiro como dinheiro.** `BigDecimal` com duas casas no domínio e centavos inteiros no banco. Nunca `double`.
+- **Desfazer de verdade.** Toda escrita passa por um registrador que guarda cada efeito. Desfazer gera a operação inversa, e a trilha mostra as duas.
+- **Idempotência.** Se o assistente repetir uma chamada (acontece!), o gasto não entra duas vezes.
+- **Recusa em vez de chute.** Faltou a conta ou o valor? A tool devolve `campos_faltando` e o assistente pergunta.
+
+---
+
+## Privacidade e segurança
+
+- **OAuth 2.1**, como pede a especificação do MCP, com Keycloak. O servidor publica os metadados do recurso (RFC 9728) e confere, em cada chamada, assinatura, emissor, audiência, validade, cliente, papel do dono e escopo da tool.
+- **Escopos separados:** ler (`fin:read`), registrar (`fin:write`), estrutura (`fin:structure`), perfil (`fin:profile`) e compartilhar (`fin:share`). O assistente só faz o que você autorizou.
+- **As tools nunca veem o token**, só o dono e os escopos já validados.
+- **Comprovantes num bucket privado**, com links de uso único.
+- **Backup criptografado** de hora em hora (restic + S3), com restauração verificada automaticamente todo mês.
+
+---
 
 ## As tools
 
 | Grupo | Tools |
-| --- | --- |
+|---|---|
 | Para começar | `guia`, `obter_contexto`, `resolver_referencia` |
 | Registrar | `registrar_gasto`, `registrar_ganho`, `registrar_transferencia`, `corrigir_lancamento`, `anexar_comprovante`, `desfazer` |
 | Estrutura | `definir_conta`, `definir_meio_pagamento`, `definir_ambito` |
 | Perfil e planos | `declarar`, `definir_meta`, `definir_compromisso`, `resolver_ocorrencia` |
 | Consultar | `listar_lancamentos`, `listar_operacoes`, `listar_compromissos`, `obter_agenda`, `obter_fatura`, `conferir_saldo` |
 | Analisar | `situacao`, `resumo_periodo`, `ritmo_gastos`, `cortes_necessarios`, `projetar` |
-| Compartilhar e ver | `prestar_contas`, `mostrar_vista` |
+| Mostrar e compartilhar | `mostrar_vista`, `prestar_contas` |
 
-Os nomes falam da intenção (`registrar_gasto`), não da tabela (`create_transaction`). O desenho segue os princípios do artigo [From Human Interfaces to Agent Interfaces](https://arxiv.org/abs/2603.20300) (Wang et al., 2026): tools pequenas e combináveis, contratos explícitos, erros tipados e saídas compactas.
+Os nomes falam da intenção (`registrar_gasto`), não da tabela (`create_transaction`). O desenho segue o artigo [From Human Interfaces to Agent Interfaces](https://arxiv.org/abs/2603.20300) (Wang et al., 2026): tools pequenas e combináveis, contratos explícitos, erros tipados e saídas compactas.
+
+---
 
 ## Arquitetura
 
@@ -79,67 +176,83 @@ flowchart LR
     PG -->|"pg_dump de hora em hora"| BK["backup (restic)"] --> S3B[("S3")]
 ```
 
-Cada módulo tem camadas, e o ArchUnit verifica as regras em todo build:
+Cada módulo tem camadas, e o ArchUnit confere as regras em todo build:
 
 ```mermaid
 flowchart TB
     adaptadores["adaptadores<br/>adaptador-mcp, adaptador-http"] --> aplicacao["aplicacao<br/>um caso de uso por tool; registrador de operações"]
     aplicacao --> dominio["dominio<br/>Java puro: livro-razão, faturas, projeção"]
     aplicacao --> persistencia["persistencia<br/>jOOQ + Flyway"]
-    convencoes["convencoes<br/>dinheiro, datas, referências, erros"]
+    convencoes["convencoes<br/>dinheiro, datas, referências, catálogo de telas"]
 ```
 
-**Stack:** Java 21, Spring Boot 4.1, Spring AI 2.0 (SDK Java do MCP, Streamable HTTP), Spring Security 7.1, PostgreSQL 16, Flyway, jOOQ, Gradle, JUnit, Testcontainers (Postgres, Keycloak, MinIO, Chromium), ArchUnit, Selenium + axe, Docker Compose, Caddy e restic.
-
-## Estrutura do repositório
+**Stack:** Java 21 · Spring Boot 4.1 · Spring AI 2.0 (SDK Java do MCP, Streamable HTTP) · Spring Security 7.1 · PostgreSQL 16 · Flyway · jOOQ · Gradle · JUnit · Testcontainers (Postgres, Keycloak, MinIO, Chromium) · ArchUnit · Selenium + axe · Docker Compose · Caddy · restic
 
 ```text
 plataforma/
-  convencoes/      convenções compartilhadas (Java puro): dinheiro, datas, referências, catálogo de telas
+  convencoes/      convenções compartilhadas (Java puro) e o renderizador de telas
   seguranca/       validação de token, escopos e dono
   financeiro/      dominio, aplicacao, adaptador-mcp, adaptador-http, persistencia, app
-  infra/
-    docker-compose.yml   postgres, financeiro, caddy, backup
-    caddy/               proxy interno
-    keycloak/            realm versionado
-    comprovantes/        bucket S3 dos comprovantes
-    backup/              pg_dump + restic + S3, restauração verificada
-    publicacao/          DNS e proxy na Cloudflare
+  infra/           docker-compose, Caddy, realm do Keycloak, comprovantes, backup, publicação
 AGENTS.md          regras de código (para pessoas e agentes de IA)
 ```
 
+---
+
 ## Rodando o build
 
-Você só precisa de Docker. Nada de JDK ou Gradle no host:
+Só é preciso Docker. Nada de JDK ou Gradle no host:
 
 ```bash
-plataforma/ci.sh build    # compila com -Werror, roda ArchUnit e todos os testes com Testcontainers
+# Compila com -Werror, roda ArchUnit e os 524 testes com Testcontainers
+plataforma/ci.sh build
+
+# Uma tarefa específica do Gradle
+plataforma/ci.sh :financeiro:dominio:test
 ```
 
-O build completo leva cerca de 10 minutos, porque sobe Postgres, Keycloak, MinIO e um navegador real.
+> 524 testes. O build completo leva de 10 a 20 minutos, porque sobe Postgres, Keycloak, MinIO e um navegador real.
+
+---
 
 ## Hospedando a sua instância
 
-O Alicerce nasceu para uso pessoal e roda em produção para o autor. Ele **ainda não é um produto pronto para instalar com um clique**. Para hospedar o seu, você vai precisar de:
+> [!NOTE]
+> O Alicerce nasceu para uso pessoal e roda em produção, no dia a dia do autor. Ele **ainda não é um produto de instalar com um clique**. Se travar em algum passo, abra uma issue: isso ajuda a simplificar o caminho.
 
-1. **Um domínio** com dois endereços: um para o MCP (ex.: `fin.seudominio.com`) e outro para a interface web (ex.: `app.seudominio.com`).
-2. **Um Keycloak** com o realm de `plataforma/infra/keycloak/realm-alicerce.json`, ajustando os endereços e as audiências para o seu domínio. O seu usuário precisa do papel `fin-owner`.
-3. **Ajustar os endereços** em `application.yaml` (ou por variável de ambiente): `alicerce.seguranca.emissor`, `alicerce.seguranca.recurso` e `alicerce.financeiro.endereco-web`. Ajuste também os hosts no `Caddyfile`.
-4. **Copiar os `*.env.exemplo`** para `.env`, preencher as senhas e subir: `cd plataforma/infra && docker compose up -d --build`.
-5. Opcional: o bucket de comprovantes (`infra/comprovantes/provisionar-aws.sh`) e o backup (`infra/backup/`).
+1. **Domínio** com dois endereços: um para o MCP (`fin.seudominio.com`) e outro para a interface (`app.seudominio.com`).
+2. **Keycloak** com o realm de `plataforma/infra/keycloak/realm-alicerce.json`, ajustando endereços e audiências. O seu usuário precisa do papel `fin-owner`.
+3. **Endereços** em `application.yaml` (ou por variável de ambiente): `alicerce.seguranca.emissor`, `alicerce.seguranca.recurso` e `alicerce.financeiro.endereco-web`. Ajuste também os hosts do `Caddyfile`.
+4. **Segredos e subida:** copie os `*.env.exemplo` para `.env`, preencha as senhas e rode:
 
-Depois, adicione `https://fin.seudominio.com/mcp` como conector personalizado no Claude ou no ChatGPT.
+   ```bash
+   cd plataforma/infra && docker compose up -d --build
+   ```
 
-Se você tentar e travar em algum passo, abra uma issue: isso ajuda a transformar esses passos em algo mais simples.
+5. **Opcional:** o bucket de comprovantes (`infra/comprovantes/provisionar-aws.sh`) e o backup (`infra/backup/`).
 
-## Situação
+Por fim, adicione `https://fin.seudominio.com/mcp` como conector personalizado no Claude ou no ChatGPT.
 
-Em uso diário pelo autor, com 29 tools e interface web. Os próximos módulos previstos seguem a mesma ideia de "fatos guardados, IA que conversa", como um diário e o ciclo de planejamento.
+---
+
+## Princípios
+
+Cinco ideias por trás de cada decisão:
+
+1. **O assistente pensa; o servidor registra, calcula e prova.** Nenhum número sai do modelo.
+2. **Nada se apaga.** Corrigir é estornar, desfazer é registrar o inverso, e o histórico conta tudo.
+3. **Recusar é melhor que adivinhar.** Dado faltando volta como pergunta, não como suposição.
+4. **Tudo tem endereço.** Um link estável leva da conversa ao registro e do registro à operação que o criou.
+5. **Seus dados, seu servidor.** Escopos mínimos, token fora das tools e backup que você pode restaurar.
+
+---
 
 ## Contribuindo
 
-Issues e pull requests são bem-vindos. Antes de mexer no código, leia o [AGENTS.md](AGENTS.md): ele traz as regras de arquitetura e de negócio que o build verifica e os arquivos de referência para cada tipo de mudança. Os nomes no código são em português, de propósito.
+Issues e pull requests são bem-vindos. Antes de mexer no código, leia o [AGENTS.md](AGENTS.md): ele traz as regras de arquitetura e de negócio que o build confere e os arquivos de referência para cada tipo de mudança. Os nomes no código são em português, de propósito.
+
+---
 
 ## Licença
 
-[GNU Affero General Public License v3.0](LICENSE). Você pode usar, estudar, modificar e redistribuir. Se oferecer uma versão modificada como serviço na internet, precisa disponibilizar o código-fonte dessa versão aos usuários.
+[GNU Affero General Public License v3.0](LICENSE). Você pode usar, estudar, modificar e redistribuir. Se oferecer uma versão modificada como serviço na internet, precisa disponibilizar o código-fonte dessa versão a quem usa.
