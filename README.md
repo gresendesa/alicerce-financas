@@ -68,6 +68,7 @@ A IA é ótima para entender "gastei 45 no almoço" e péssima para somar 300 la
 | "Quanto gastei e quanto ganhei em setembro?" | Resumo de qualquer período, por competência ou por caixa |
 | "Estou gastando mais rápido que o normal?" | Compara o ritmo do mês com o seu típico e mostra quais categorias puxam a diferença |
 | "O que preciso cortar para fechar o mês no verde?" | Projeta o fim do mês e monta o plano mínimo de cortes por categoria |
+| "Acha uma boa ideia comprar esse notebook?" | Simula a compra em cada forma de pagar e mostra o que ela faz com o saldo, a reserva, as parcelas e as metas ([veja abaixo](#acha-uma-boa-ideia-comprar-isso)) |
 | "E se eu fizer essa viagem em março?" | Projeção mês a mês, com a linha de base e até três cenários |
 | "Quero juntar 8 mil até julho" | Meta com conta reservada: quanto falta e quanto aportar por mês |
 | "Minha reserva é de 6 meses de gastos" | Regras do perfil (reserva mínima, teto de parcelas, poupança) que o servidor vigia e avisa quando estão em risco |
@@ -77,6 +78,37 @@ A IA é ótima para entender "gastei 45 no almoço" e péssima para somar 300 la
 | "Desfaz isso." | Toda escrita é uma operação que pode ser desfeita, sem apagar nada |
 
 Também lida com conta em moeda estrangeira (o câmbio entra como o extrato mostra) e com comprovantes e fotos anexados aos lançamentos.
+
+---
+
+## "Acha uma boa ideia comprar isso?"
+
+É a pergunta em que a IA sozinha mais erra: ela responde com bom senso genérico, ou pior, com contas de cabeça. No Alicerce, **a opinião é do assistente, mas os fatos que a sustentam vêm do servidor.**
+
+```text
+Você:      Acha uma boa ideia comprar esse notebook de 6.000? À vista ou em 10x?
+
+Assistente: Simulei as duas formas nos próximos 6 meses.
+            À vista: o saldo fica abaixo da sua reserva mínima de março a maio,
+                     mesmo na estimativa otimista.
+            Em 10x:  a reserva se mantém, mas as parcelas chegam a 34% da renda
+                     em abril, acima do teto de 30% que você declarou.
+            E a meta da viagem atrasa de julho para setembro nos dois casos.
+            Se puder esperar até maio, em 10x nenhuma regra sua é quebrada.
+            Simulação guardada: s-4TQ8WD  → app.../fin/s/4TQ8WD
+```
+
+O que o servidor entrega numa chamada de `projetar`:
+
+- **Até três cenários lado a lado**, como à vista, em 10x ou só em maio. No crédito, cada parcela cai na fatura em que o cartão realmente a cobraria.
+- **Duas estimativas, sempre:** a otimista (mediana dos seus gastos) e a pessimista de propósito (percentil 80), para a decisão não depender de um mês bom.
+- **As suas regras, conferidas mês a mês:** reserva mínima, piso do período, teto de parcelas sobre a renda e metas protegidas. O assistente não interpreta as suas regras: o servidor diz quais o cenário quebra e quando.
+- **O efeito nas metas:** a data em que cada meta seria alcançada em cada cenário, contra a data que você definiu.
+- **Ressalvas honestas:** com menos de três meses de histórico ou com saldo sem conferência recente, a resposta avisa que a base é frágil, em vez de fingir certeza.
+- **Um retrato imutável** da simulação. Semanas depois, "aquela simulação do notebook ainda vale?" compara o retrato com os dados de hoje.
+
+> [!NOTE]
+> O Alicerce não diz "compre" ou "não compre". Ele mostra o que a compra faz com o seu dinheiro e com as regras que **você** declarou. A recomendação fica com o assistente e a decisão, com você.
 
 ---
 
